@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShutdownAssistant.Models;
-using System.Runtime.InteropServices;
+using ShutdownAssistant.Services;
 
 namespace ShutdownAssistant.Controllers
 {
@@ -16,15 +16,12 @@ namespace ShutdownAssistant.Controllers
             _logger = logger;
             _config = config;
         }
-        [DllImport("PowrProf.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-        public static extern bool SetSuspendState(bool hiberate, bool forceCritical, bool disableWakeEvent);
-
         [HttpPost(Name = "Hibernate")]
         public IActionResult Hibernate(Request request)
         {
             if (request.apiKey == _config.apiKey)
             {
-                SetSuspendState(true, true, true);
+                Task<bool> task = Suspend.Hibernate(_config.delay);
                 return Ok();
             }
             return BadRequest();
@@ -34,7 +31,7 @@ namespace ShutdownAssistant.Controllers
         {
             if (request.apiKey == _config.apiKey)
             {
-                SetSuspendState(false, true, true);
+                Task<bool> task = Suspend.Sleep(_config.delay);
                 return Ok();
             }
             return BadRequest();
