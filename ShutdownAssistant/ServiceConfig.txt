@@ -1,7 +1,10 @@
 ﻿$acl = Get-Acl "c:\ShutdownAssistant"
-$aclRuleArgs = ".\ShutdownAssistant", "Read,Write,ReadAndExecute", "ContainerInherit,ObjectInherit", "None", "Allow"
+$aclRuleArgs = "ShutdownAssistant", "Read,Write,ReadAndExecute", "ContainerInherit,ObjectInherit", "None", "Allow"
 $accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($aclRuleArgs)
 $acl.SetAccessRule($accessRule)
 $acl | Set-Acl "c:\ShutdownAssistant"
 
-New-Service -Name ShutdownAssistant -BinaryPathName "c:\ShutdownAssistant\shutdownassistant.exe --contentRoot c:\ShutdownAssistant" -Credential "ShutdownAssistant" -Description "ShutdownAssistant" -DisplayName "ShutdownAssistant" -StartupType Automatic
+secpol.msc -- log on as a service right
+
+New-Service -Name ShutdownAssistant -BinaryPathName "c:\ShutdownAssistant\shutdownassistant.exe --contentRoot c:\ShutdownAssistant" -Credential ".\ShutdownAssistant" -Description "ShutdownAssistant" -DisplayName "ShutdownAssistant" -StartupType Automatic
+
