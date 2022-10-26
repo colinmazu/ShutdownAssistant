@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ShutdownAssistant.Models;
 using System.Runtime.InteropServices;
 
 namespace ShutdownAssistant.Controllers
@@ -8,27 +9,35 @@ namespace ShutdownAssistant.Controllers
     public class SystemController : Controller
     {
         private readonly ILogger<SystemController> _logger;
+        private readonly ShutdownAssistantConfig _config;
 
-        public SystemController(ILogger<SystemController> logger)
+        public SystemController(ILogger<SystemController> logger, ShutdownAssistantConfig config)
         {
             _logger = logger;
+            _config = config;
         }
         [DllImport("PowrProf.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         public static extern bool SetSuspendState(bool hiberate, bool forceCritical, bool disableWakeEvent);
 
-        [HttpGet(Name = "Hibernate")]
-        public string Hibernate()
+        [HttpPost(Name = "Hibernate")]
+        public IActionResult Hibernate(Request request)
         {
-            SetSuspendState(true, true, true);
-
-            return "ok";
+            if (request.apiKey == _config.apiKey)
+            {
+                SetSuspendState(true, true, true);
+                return Ok();
+            }
+            return BadRequest();
         }
-        [HttpGet(Name = "Sleep")]
-        public string Sleep()
+        [HttpPost(Name = "Sleep")]
+        public IActionResult Sleep(Request request)
         {
-            SetSuspendState(false, true, true);
-
-            return "ok";
+            if (request.apiKey == _config.apiKey)
+            {
+                SetSuspendState(false, true, true);
+                return Ok();
+            }
+            return BadRequest();
         }
     }
 }
